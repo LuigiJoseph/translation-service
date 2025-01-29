@@ -8,7 +8,7 @@ KAFKA_BROKER  = os.getenv("KAFKA_BROKER", "kafka:9093")
 TOPIC_IN = "topic_in"
 
 # Initilize the kafka producer
-producer = Producer({'bootstrap.servers:': KAFKA_BROKER})
+producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 
 # Function to send message
 def send_translation_request(text):

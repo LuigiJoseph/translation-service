@@ -36,3 +36,10 @@ services:
       - KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL=PLAINTEXT
     depends_on:
       - kafka
+
+  async-service:
+    build: ./kafka  
+    environment:
+      - KAFKA_BROKER=kafka:9093
+    depends_on:
+      - kafka
