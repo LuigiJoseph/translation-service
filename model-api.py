@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
 from transformers import MarianMTModel, MarianTokenizer
-from model import translate_text
+from model import translate_text , MODELS , mark_model_used
 import uuid
 
 app = Flask(__name__)
@@ -12,42 +12,55 @@ api = Api(app, version='1.0', title='Translation service', description='An API f
 # model = MarianMTModel.from_pretrained(MODEL_NAME)
 
 translation_model = api.model('TranslationRequest', {
-    'source_locale': fields.String(required=True, description='Source language'),
+    'source_target_locale': fields.String(required=True, description='Source and Target languages'),
     'target_locale': fields.String(required=True, description='Target language'),
     'text': fields.String(required=True, description='Text to translate')
 })
 
-@api.route("/translate")
+
+# METHOD = POST -> Translation
+@api.route("/api/v1/translate")
 class TranslateResource(Resource):
     
     @api.expect(translation_model)
     @api.doc(responses={
-        200: 'Success',
-        400: 'Bad Request'
+        200: 'Success'
     })
     def post(self):
-        #Description
         """Translate text from one language to another"""
         request_id = str(uuid.uuid4())
         data = request.json
-        source_lang = data.get("source_locale")
-        target_lang = data.get("target_locale")
+        target_locale=data.get("target_locale")
+        source_target_locale = data.get("source_target_locale")
         text = data.get("text")
-        
-        if not source_lang or not target_lang or not text:
-            return {"error": "Missing required parameters"}, 400
-        
-        # Perform translation using the model
-        translated_text = translate_text(text)
-        
-        return {"request_id": request_id,
-            "translated_text": translated_text}
 
-# @api.route("/languages")
-# class Languages(Resource):
-#     def get(self):
-#         """This returns sopported languages"""
-#         return {"languages" : ["tr" , "en"]}
+        if not text:
+            api.abort(400, "text cannot be empty, please enter text")
+
+        if source_target_locale in MODELS:
+            model_info = MODELS[source_target_locale]
+            mark_model_used(source_target_locale)  # Mark model as used
+            
+            translated_text = translate_text(text, source_target_locale)  
+            
+            return {
+                "request_id": request_id,
+                "translated_text": translated_text,
+                "model_used": model_info["name"]
+            }
+        else:
+            return {"error": "Invalid translation direction"}, 400
+
+# METHOD = GET -> List models 
+@api.route("/api/v1/list-models")
+class Languages(Resource):
+    @api.doc(responses={  
+        200: 'Success',  
+        400: 'Bad Request'  
+    })
+    def get(self):
+        """This returns all translation models available"""
+        return {"models": [model["name"] for model in MODELS.values()]}
     
 if __name__ == "__main__":
     app.run(debug=True, host='0.0.0.0', port=5000)
