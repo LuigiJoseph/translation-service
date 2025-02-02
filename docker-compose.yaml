@@ -43,3 +43,8 @@ services:
       - KAFKA_BROKER=kafka:9093
     depends_on:
       - kafka
+
+  rest-api:
+    build: ./rest_api
+    ports:
+      - "5000:5000"

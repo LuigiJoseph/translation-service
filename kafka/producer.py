@@ -21,4 +21,5 @@ def send_translation_request(text):
 
 
 if __name__ == "__main__":
-    send_translation_request("Hello, Kafka!")
+    input_text = str(input("please enter text to be translated: "))
+    send_translation_request(input_text)

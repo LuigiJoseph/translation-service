@@ -9,7 +9,6 @@ KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
 TOPIC_IN = "topic_in"
 TOPIC_OUT = "topic_out"
 
-
 # Initilize Kafka Consumer
 consumer = Consumer({
     'bootstrap.servers' : KAFKA_BROKER,
@@ -21,10 +20,17 @@ consumer.subscribe([TOPIC_IN])
 # Initilize Kafka Producer for responses
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 
-# Will replace this with API method for translating
-def process_text(text):
-    print(f"Processing text: {text}")
-    return text[::-1] #return the string reversed for testing
+#Place holder for the API laters
+REST_API_URL = "http://rest-api:5000/translate"
+
+# Function to call REST API
+def call_translation_api(text):
+    response = requests.post(REST_API_URL, json={"text": text})
+    print(f"📡 Sent request to API: {text}")
+    print(f"🔍 API Response: {response.status_code} - {response.text}")  # DEBUGGING
+    if response.status_code == 200:
+        return response.json().get("translated_text", "")
+    return "ERROR"
 
 
 # Start consuming messages
@@ -43,7 +49,7 @@ while True:
     print(f"Received text to trasnlate: {text_to_translate}")
 
     # REPLACE LATER WITH PROPER FUNCTION
-    translated_text = process_text(text_to_translate)
+    translated_text = call_translation_api(text_to_translate)
 
     #send translation result to topic_out
     response_message = json.dumps({"translated_text" : translated_text})
