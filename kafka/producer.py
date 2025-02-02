@@ -4,7 +4,8 @@ import os
 
 
 # Load kafka configration
-KAFKA_BROKER  = os.getenv("KAFKA_BROKER", "kafka:9093")
+# KAFKA_BROKER  = os.getenv("KAFKA_BROKER", "kafka:9093")
+KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
 TOPIC_IN = "topic_in"
 
 # Initilize the kafka producer
@@ -18,3 +19,6 @@ def send_translation_request(text):
     print(f"Successfuly Sent translation request: {data}")
 
 
+
+if __name__ == "__main__":
+    send_translation_request("Hello, Kafka!")
