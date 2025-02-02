@@ -1,22 +1,16 @@
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
 from transformers import MarianMTModel, MarianTokenizer
-from model import translate_text , MODELS , mark_model_used
+from models.model import translate_text , MODELS , mark_model_used
 import uuid
-
-app = Flask(__name__)
-api = Api(app, version='1.0', title='Translation service', description='An API for text translation')
-
-# MODEL_NAME = "ckartal/turkish-to-english-finetuned-model"
-# tokenizer = MarianTokenizer.from_pretrained(MODEL_NAME)
-# model = MarianMTModel.from_pretrained(MODEL_NAME)
+from restapi_server import api,app
+# from restapi_server import api 
 
 translation_model = api.model('TranslationRequest', {
     'source_target_locale': fields.String(required=True, description='Source and Target languages'),
     'target_locale': fields.String(required=True, description='Target language'),
     'text': fields.String(required=True, description='Text to translate')
 })
-
 
 # METHOD = POST -> Translation
 @api.route("/api/v1/translate")
@@ -62,5 +56,3 @@ class Languages(Resource):
         """This returns all translation models available"""
         return {"models": [model["name"] for model in MODELS.values()]}
     
-if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0', port=5000)

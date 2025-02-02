@@ -18,7 +18,7 @@ for key, model_info in MODELS.items():
         model_info["tokenizer"] = MarianTokenizer.from_pretrained(model_info["name"])
         model_info["model"] = MarianMTModel.from_pretrained(model_info["name"])
     except Exception as e:
-        print(f"⚠️ Warning: Failed to load model {model_info['name']} - {str(e)}")
+        print(f"Warning: Failed to load model {model_info['name']} - {str(e)}")
 
 
 # gives model used 

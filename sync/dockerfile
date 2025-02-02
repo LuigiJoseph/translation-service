@@ -6,7 +6,7 @@ WORKDIR /model-api
 
 
 # installing dep
-RUN pip install flask flask-restx torch transformers SentencePiece
+RUN pip install flask flask-restx torch transformers SentencePiece flask_pymongo
 
 
 COPY . . 
@@ -15,7 +15,7 @@ COPY . .
 # exposing port 
 EXPOSE 5000
 
-CMD [ "python", "model-api.py"]
+CMD [ "python", "./app.py"]
 
 #Ins for building and running docker images 
 
