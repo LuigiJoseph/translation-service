@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
 from transformers import MarianMTModel, MarianTokenizer
-from models.model import translate_text , MODELS , mark_model_used
 import uuid
-from restapi_server import api,app
+
 # from restapi_server import api 
+from models.model import translate_text , MODELS , mark_model_used
+from restapi_server import api,app
+from mongodb.mongo import translationTxt_collection
 
 translation_model = api.model('TranslationRequest', {
     'source_target_locale': fields.String(required=True, description='Source and Target languages'),
@@ -33,9 +35,27 @@ class TranslateResource(Resource):
 
         if source_target_locale in MODELS:
             model_info = MODELS[source_target_locale]
-            mark_model_used(source_target_locale)  # Mark model as used
+            mark_model_used(source_target_locale)
+            cached_translation = translationTxt_collection.find_one({
+                "source_target_locale": source_target_locale,
+                "text": text
+                })
+            if cached_translation:
+                print("** this one is in cache **")
+                return jsonify({  
+                "source_target_locale": source_target_locale,
+                "text": text,
+                "translated_text": cached_translation["translated_text"]
+                })  
+
             
-            translated_text = translate_text(text, source_target_locale)  
+            translated_text = translate_text(text, source_target_locale)
+            #inserting a new doc to mongodb collection
+            translationTxt_collection.insert_one({
+                "source_target_locale": source_target_locale,
+                "text": text,
+                "translated_text": translated_text
+                })  
             
             return {
                 "request_id": request_id,

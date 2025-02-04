@@ -6,7 +6,7 @@ WORKDIR /model-api
 
 
 # installing dep
-RUN pip install flask flask-restx torch transformers SentencePiece flask_pymongo
+RUN pip install flask flask-restx torch transformers SentencePiece pymongo sacremoses
 
 
 COPY . . 
