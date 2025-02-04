@@ -1,12 +1,9 @@
 from confluent_kafka import Producer
+from config import KAFKA_BROKER, TOPIC_IN
 import json
 import os
 
 
-# Load kafka configration
-# KAFKA_BROKER  = os.getenv("KAFKA_BROKER", "kafka:9093")
-KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
-TOPIC_IN = "topic_in"
 
 # Initilize the kafka producer
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})

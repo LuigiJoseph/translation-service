@@ -1,11 +1,8 @@
 from confluent_kafka import Consumer
+from config import KAFKA_BROKER, TOPIC_OUT
 import json
 import os
 
-# Load Kafka Configuation
-# KAFKA_BROKER = os.getenv("KAFKA_BROKER", "kafka:9093")
-KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
-TOPIC_OUT = "topic_out"
 
 # Initialize Kafka Consumer
 consumer = Consumer({

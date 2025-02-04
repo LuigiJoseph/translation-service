@@ -10,7 +10,7 @@ services:
   kafka:
     image: 'bitnami/kafka:latest'
     ports:
-      - '9092:9092'
+      - '9093:9093'
     environment:
       - KAFKA_BROKER_ID=1
       - KAFKA_CFG_LISTENERS=PLAINTEXT_EXTERNAL://0.0.0.0:9092,PLAINTEXT_INTERNAL://0.0.0.0:9093
@@ -44,7 +44,8 @@ services:
     depends_on:
       - kafka
 
-  rest-api:
-    build: ./rest_api
+  sync:
+    build: ./sync
     ports:
       - "5000:5000"
+    

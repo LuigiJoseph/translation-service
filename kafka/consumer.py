@@ -1,13 +1,9 @@
 from confluent_kafka import Consumer, Producer
+from config import KAFKA_BROKER, TOPIC_OUT, TOPIC_IN
 import json
 import os
 import requests
 
-# Load Kafka configuation
-# KAFKA_BROKER  = os.getenv("KAFKA_BROKER", "kafka:9093")
-KAFKA_BROKER = os.getenv("KAFKA_BROKER", "localhost:9092")
-TOPIC_IN = "topic_in"
-TOPIC_OUT = "topic_out"
 
 # Initilize Kafka Consumer
 consumer = Consumer({
@@ -20,17 +16,22 @@ consumer.subscribe([TOPIC_IN])
 # Initilize Kafka Producer for responses
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 
-#Place holder for the API laters
-REST_API_URL = "http://rest-api:5000/translate"
 
-# Function to call REST API
+REST_API_URL = "http://sync:5000/api/v1/translate"
+
+
 def call_translation_api(text):
-    response = requests.post(REST_API_URL, json={"text": text})
-    print(f"📡 Sent request to API: {text}")
+    payload = {
+        "source_target_locale": "en-tr",  # Set default or modify dynamically
+        "target_locale": "tr",
+        "text": text
+    }
+    response = requests.post(REST_API_URL, json=payload)
+    print(f"📡 Sent request to API: {payload}")
     print(f"🔍 API Response: {response.status_code} - {response.text}")  # DEBUGGING
     if response.status_code == 200:
         return response.json().get("translated_text", "")
-    return "ERROR"
+    return f"ERROR: {response.text}"
 
 
 # Start consuming messages
