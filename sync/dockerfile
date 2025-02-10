@@ -1,16 +1,16 @@
-FROM python:3.12
+FROM python:3.9
 
 
 
 WORKDIR /model-api
 
-
-# installing dep
-RUN pip install flask flask-restx torch transformers SentencePiece pymongo sacremoses
-
-
 COPY . . 
 
+# installing dep
+RUN pip install flask flask-restx torch transformers SentencePiece pymongo sacremoses PyYAML python-json-logger
+
+#copying the config from root 
+# COPY COPY ../configs/config.yaml   
 
 # exposing port 
 EXPOSE 5000

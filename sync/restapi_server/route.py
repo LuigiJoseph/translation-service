@@ -2,11 +2,14 @@ from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
 from transformers import MarianMTModel, MarianTokenizer
 import uuid
-
-# from restapi_server import api 
+from log.loggers import get_logger
+ 
 from models.model import translate_text , MODELS , mark_model_used
 from restapi_server import api,app
 from mongodb.mongo import translationTxt_collection
+
+logger = get_logger(__name__)
+
 
 translation_model = api.model('TranslationRequest', {
     'source_target_locale': fields.String(required=True, description='Source and Target languages'),
@@ -41,7 +44,7 @@ class TranslateResource(Resource):
                 "text": text
                 })
             if cached_translation:
-                print("** this one is in cache **")
+                logger.info("** this transaltion is retrived from cache **")
                 return jsonify({  
                 "source_target_locale": source_target_locale,
                 "text": text,
@@ -50,7 +53,7 @@ class TranslateResource(Resource):
 
             
             translated_text = translate_text(text, source_target_locale)
-            #inserting a new doc to mongodb collection
+            # inserting a new doc to mongodb collection
             translationTxt_collection.insert_one({
                 "source_target_locale": source_target_locale,
                 "text": text,

@@ -1,0 +1,4 @@
+{"name": "mongodb.mongo", "asctime": "2025-02-10 09:32:50,549", "levelname": "INFO", "message": "mongoDB connected url: mongodb://root:root@mongo:27017/"}
+{"name": "__main__", "asctime": "2025-02-10 09:32:50,550", "levelname": "INFO", "message": "Starting flask"}
+{"name": "mongodb.mongo", "asctime": "2025-02-10 09:32:56,719", "levelname": "INFO", "message": "mongoDB connected url: mongodb://root:root@mongo:27017/"}
+{"name": "__main__", "asctime": "2025-02-10 09:32:56,721", "levelname": "INFO", "message": "Starting flask"}

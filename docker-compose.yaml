@@ -48,6 +48,12 @@ services:
     build: ./sync
     ports:
       - "5000:5000"
+    environment:
+     - CONFIG_FILE=/configs/config.yaml
+     - LOG_FILE_PATH=/json_logs
+    volumes:
+     - ./sync/configs/config.yaml:/configs/config.yaml
+     - ./sync/json_logs:/json_logs
 
   mongo:
     image: mongo:latest
@@ -58,3 +64,4 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: root
     ports:
       - "27017:27017"
+

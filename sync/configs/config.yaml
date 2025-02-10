@@ -1,0 +1,8 @@
+
+database:
+  host: mongo
+  port: 27017
+  username: root
+  password: root
+  name: translation
+  collection: translationTxt_collection
