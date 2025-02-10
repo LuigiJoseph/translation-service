@@ -2,8 +2,8 @@ from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
 from transformers import MarianMTModel, MarianTokenizer
 import uuid
+
 from log.loggers import get_logger
- 
 from models.model import translate_text , MODELS , mark_model_used
 from restapi_server import api,app
 from mongodb.mongo import translationTxt_collection
@@ -59,6 +59,7 @@ class TranslateResource(Resource):
                 "text": text,
                 "translated_text": translated_text
                 })  
+            logger.info("Added new translation to database")
             
             return {
                 "request_id": request_id,
