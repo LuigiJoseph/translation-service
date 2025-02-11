@@ -3,12 +3,12 @@ from flask_restx import Api, Resource, fields
 from transformers import MarianMTModel, MarianTokenizer
 import uuid
 
-from log.loggers import get_logger
+
 from models.model import translate_text , MODELS , mark_model_used
 from restapi_server import api,app
 from mongodb.mongo import translationTxt_collection
-
-logger = get_logger(__name__)
+from log.loggers import logger
+# logger = get_logger(__name__)
 
 
 translation_model = api.model('TranslationRequest', {

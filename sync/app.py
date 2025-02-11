@@ -1,6 +1,7 @@
 from restapi_server import app,api
-from log.loggers import get_logger
-logger = get_logger(__name__)
+from log.loggers import logger
+
+# logger = get_logger(__name__)
 
 
 

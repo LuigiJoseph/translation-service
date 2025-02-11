@@ -1,1 +1,8 @@
-{"name": "log.loggers", "asctime": "2025-02-10 12:45:57", "levelname": "INFO", "message": "Logger initialized"}
+{"name": "log.loggers", "timestamp": "2025-02-11 07:07:13", "severity": "INFO", "filename": "loggers.py", "lineno": 51, "message": "Logger initialized"}
+{"name": "log.loggers", "timestamp": "2025-02-11 07:07:13", "severity": "INFO", "filename": "mongo.py", "lineno": 15, "message": "File opened successfully!"}
+{"name": "log.loggers", "timestamp": "2025-02-11 07:07:13", "severity": "INFO", "filename": "mongo.py", "lineno": 31, "message": "mongoDB connected url: mongodb://root:root@mongo:27017/"}
+{"name": "log.loggers", "timestamp": "2025-02-11 07:07:13", "severity": "INFO", "filename": "app.py", "lineno": 9, "message": "Starting flask"}
+{"name": "log.loggers", "timestamp": "2025-02-11 07:07:17", "severity": "INFO", "filename": "loggers.py", "lineno": 51, "message": "Logger initialized"}
+{"name": "log.loggers", "timestamp": "2025-02-11 07:07:17", "severity": "INFO", "filename": "mongo.py", "lineno": 15, "message": "File opened successfully!"}
+{"name": "log.loggers", "timestamp": "2025-02-11 07:07:17", "severity": "INFO", "filename": "mongo.py", "lineno": 31, "message": "mongoDB connected url: mongodb://root:root@mongo:27017/"}
+{"name": "log.loggers", "timestamp": "2025-02-11 07:07:17", "severity": "INFO", "filename": "app.py", "lineno": 9, "message": "Starting flask"}
