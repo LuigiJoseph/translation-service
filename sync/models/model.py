@@ -10,6 +10,11 @@ MODELS={
                     "name": "ckartal/english-to-turkish-finetuned-model",
                     "src_lang": "en",
                     "tgt_lang": "tr",
+                },
+    "en-ar": {
+                    "name": "Helsinki-NLP/opus-mt-tc-big-en-ar",
+                    "src_lang": "en",
+                    "tgt_lang": "ar",
                 }
     }
 

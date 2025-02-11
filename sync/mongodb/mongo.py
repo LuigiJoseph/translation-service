@@ -29,6 +29,8 @@ mongo_url=f"mongodb://{mongo_USER}:{mongo_PASS}@{mongo_HOST}:{mongo_PORT}/"
 client = MongoClient(mongo_url)
 
 logger.info(f"mongoDB connected url: {mongo_url}")
+# logger.info(f"Number of handlers attached: {len(logger.handlers)}")
+
 
 translation_db = client["translation"]
 translationTxt_collection = translation_db["translationTxt_collection"]

@@ -1,15 +1,16 @@
-from flask import Flask, request, jsonify
-from flask_restx import Api, Resource, fields
-from transformers import MarianMTModel, MarianTokenizer
+from flask import request, jsonify
+from flask_restx import Resource, fields , Namespace
 import uuid
 
 
-from models.model import translate_text , MODELS , mark_model_used
-from restapi_server import api,app
-from mongodb.mongo import translationTxt_collection
 from log.loggers import logger
-# logger = get_logger(__name__)
+from models.model import translate_text , MODELS , mark_model_used
+from mongodb.mongo import translationTxt_collection
+from restapi_server import api
 
+
+api = Namespace("translate", description="Translation operations")
+logger.info(f"Number of handlers attached: {len(logger.handlers)}")
 
 translation_model = api.model('TranslationRequest', {
     'source_target_locale': fields.String(required=True, description='Source and Target languages'),
@@ -44,12 +45,15 @@ class TranslateResource(Resource):
                 "text": text
                 })
             if cached_translation:
-                logger.info("** this transaltion is retrived from cache **")
+                logger.debug(f"transaltion: {text}, source_target_locale {source_target_locale} is retrived from cache")
+                print(text)
+
                 return jsonify({  
                 "source_target_locale": source_target_locale,
                 "text": text,
                 "translated_text": cached_translation["translated_text"]
                 })  
+                
 
             
             translated_text = translate_text(text, source_target_locale)
@@ -59,7 +63,7 @@ class TranslateResource(Resource):
                 "text": text,
                 "translated_text": translated_text
                 })  
-            logger.info("Added new translation to database")
+            
             
             return {
                 "request_id": request_id,

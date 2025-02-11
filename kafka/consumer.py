@@ -20,7 +20,7 @@ producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 REST_API_URL = "http://sync:5000/api/v1/translate"
 
 
-def call_translation_api(text):
+def call_api(text):
     payload = {
         "source_target_locale": "en-tr",  # Set default or modify dynamically
         "target_locale": "tr",
@@ -50,7 +50,7 @@ while True:
     print(f"Received text to trasnlate: {text_to_translate}")
 
     # REPLACE LATER WITH PROPER FUNCTION
-    translated_text = call_translation_api(text_to_translate)
+    translated_text = call_api(text_to_translate)
 
     #send translation result to topic_out
     response_message = json.dumps({"translated_text" : translated_text})
