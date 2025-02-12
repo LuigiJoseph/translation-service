@@ -27,7 +27,7 @@ logger.addHandler(console_handler)
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 logger.info("Kafka Producer initialized", extra={"kafka_broker": KAFKA_BROKER, "topic": TOPIC_IN})
 
-
+# Function 
 def delivery_report(err, msg):
     """ Kafka delivery callback: Runs when Kafka confirms message delivery. """
     if err is not None:

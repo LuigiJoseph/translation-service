@@ -15,6 +15,8 @@ consumer = Consumer({
 consumer.subscribe([TOPIC_OUT])
 logger.info("Kafka Response Consumer started", extra={"topic": TOPIC_OUT})
 
+
+
 # ✅ Start consuming messages
 while True:
     msg = consumer.poll(1.0)

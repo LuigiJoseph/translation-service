@@ -6,7 +6,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy all async components
-COPY producer.py consumer.py response_consumer.py config.py ./
+COPY *.py ./
+
 
 # Default command - can be overridden when running the container
 CMD ["python", "consumer.py"]
