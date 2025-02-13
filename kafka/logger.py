@@ -3,14 +3,11 @@ import json
 from pathlib import Path
 import os
 
-# ✅ Define Log Directory and File
-log_dir = Path("/json_logs")
-log_file_path = log_dir / "logs.json"
-
 # ✅ Ensure the log directory exists
+log_dir = Path("/json_logs")
 log_dir.mkdir(parents=True, exist_ok=True)
 
-# ✅ Create a Custom JSON Formatter
+# ✅ Custom JSON Formatter
 class JsonFormatter(logging.Formatter):
     def format(self, record):
         log_obj = {
@@ -21,10 +18,13 @@ class JsonFormatter(logging.Formatter):
         }
         return json.dumps(log_obj)
 
-# ✅ Create Logger
+# ✅ Function to create a logger with a unique log file
 def get_logger(name):
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)  # Log all levels (DEBUG, INFO, WARNING, ERROR)
+    logger.setLevel(logging.DEBUG)
+
+    # ✅ Create log file per logger
+    log_file_path = log_dir / f"{name}.json"
 
     # ✅ Create Handlers (File + Console)
     file_handler = logging.FileHandler(log_file_path)

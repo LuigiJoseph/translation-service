@@ -10,4 +10,5 @@ COPY *.py ./
 
 
 # Default command - can be overridden when running the container
-CMD ["python", "consumer.py"]
+CMD ["python", "consumer.py", "response_consumer.py"]
+
