@@ -7,5 +7,5 @@ database:
   name: translation
   collection: translation_cache
 
-huggingface:
-token: 
+# huggingface:
+# token: 
