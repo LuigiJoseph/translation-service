@@ -7,4 +7,4 @@ database:
   name: translation
   collection: translation_cache
 
-huggingface:
+
