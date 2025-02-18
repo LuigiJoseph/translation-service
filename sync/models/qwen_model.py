@@ -9,22 +9,22 @@ from log.loggers import logger
 configfile_path = Path("/configs/config.yaml")
 # configfile_path = Path(__file__).resolve().parents[2] / "configs"/"config.yaml"
 
-# try:
-#     with open(configfile_path, "r") as file:
-#         logger.info("File opened successfully!")
+try:
+    with open(configfile_path, "r") as file:
+        logger.info("File opened successfully!")
 
-#         config = yaml.safe_load(file)
-# except Exception as e:
-#     print(f"Error opening file: {e}")
+        config = yaml.safe_load(file)
+except Exception as e:
+    print(f"Error opening file: {e}")
 
-# #login with token in hugging face
-# try:
-#     hugging_token = config["huggingface"]["token"]
-#     login(token=hugging_token)
-# except KeyError:
-#     logger.info("Token key not found in the configuration file.")
-# except Exception as e:
-#     print(f"Failed to log in: {e}")
+#login with token in hugging face
+try:
+    hugging_token = config["huggingface"]["token"]
+    login(token=hugging_token)
+except KeyError:
+    logger.info("Token key not found in the configuration file.")
+except Exception as e:
+    print(f"Failed to log in: {e}")
 
 # Model name
 model_name = "Qwen/Qwen2.5-1.5B-Instruct"
