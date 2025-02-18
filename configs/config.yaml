@@ -8,4 +8,4 @@ database:
   collection: translation_cache
 
 huggingface:
-token: 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
+token: 
