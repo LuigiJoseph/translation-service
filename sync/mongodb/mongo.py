@@ -1,14 +1,12 @@
 from pymongo import MongoClient
-import os
 from pathlib import Path
 import yaml
+import hashlib
 
 from log.loggers import logger
 
-# logger = get_logger(__name__)
-
 configfile_path = Path("/configs/config.yaml")
-# configfile_path = Path(__file__).resolve().parents[1] / "configs"/"config.yaml"
+# configfile_path = Path(__file__).resolve().parents[2] / "configs"/"config.yaml"
 
 try:
     with open(configfile_path, "r") as file:
@@ -26,11 +24,17 @@ mongo_PASS = config["database"]["password"]
 
 
 mongo_url=f"mongodb://{mongo_USER}:{mongo_PASS}@{mongo_HOST}:{mongo_PORT}/"
+
 client = MongoClient(mongo_url)
 
 logger.info(f"mongoDB connected url: {mongo_url}")
 # logger.info(f"Number of handlers attached: {len(logger.handlers)}")
 
 
-translation_db = client["translation"]
-translationTxt_collection = translation_db["translationTxt_collection"]
+translation_db = client[mongo_NAME]
+translation_cache = translation_db[mongo_collection]
+
+
+def generate_cache_key(text, source_locale, target_locale, model_name):
+    key_string = f"{text}-{source_locale}-{target_locale}-{model_name}"
+    return hashlib.sha256(key_string.encode()).hexdigest()

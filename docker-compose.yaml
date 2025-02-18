@@ -51,7 +51,7 @@ services:
     environment:
      - CONFIG_FILE=/configs/config.yaml
     volumes:
-     - ./sync/configs/config.yaml:/configs/config.yaml
+     - ./configs/config.yaml:/configs/config.yaml
 
 
   mongo:

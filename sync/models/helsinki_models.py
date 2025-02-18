@@ -1,5 +1,6 @@
 from transformers import MarianMTModel, MarianTokenizer
 
+from log.loggers import logger
 MODELS={ 
     "tr-en": {
                     "name": "ckartal/turkish-to-english-finetuned-model",  
@@ -18,27 +19,22 @@ MODELS={
                 }
     }
 
+
+#load models
 for key, model_info in MODELS.items():
     try:
         model_info["tokenizer"] = MarianTokenizer.from_pretrained(model_info["name"])
         model_info["model"] = MarianMTModel.from_pretrained(model_info["name"])
     except Exception as e:
-        print(f"Warning: Failed to load model {model_info['name']} - {str(e)}")
-
-
-# gives model used 
-used_models = set()
-
-def mark_model_used(model_key):
-    if model_key in MODELS:
-        used_models.add(MODELS[model_key]["name"])
-
+        logger.info(f"Warning: Failed to load model {model_info['name']} - {str(e)}")
 
 # Translation Function
-def translate_text(text, source_target_locale):
-
+def translate_text(text, source, target):
+    # Construct the key dynamically
+    source_target_locale = f"{source}-{target}"
+    
     if source_target_locale not in MODELS:
-        return "Error: Model not found"
+        return f"Error: No model found for {source} to {target} translation"
 
     model_info = MODELS[source_target_locale]
     tokenizer = model_info["tokenizer"]
@@ -51,6 +47,5 @@ def translate_text(text, source_target_locale):
         inputs = tokenizer(text, return_tensors="pt", padding=True, truncation=True)
         translated = model.generate(**inputs)
         return tokenizer.batch_decode(translated, skip_special_tokens=True)[0]
-    
     except Exception as e:
         return f"Translation failed: {str(e)}"
