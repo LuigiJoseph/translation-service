@@ -44,6 +44,15 @@ services:
     depends_on:
       - kafka
 
+  # ollama:
+  #   image: ollama/ollama
+  #   container_name: ollama
+  #   restart: always
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ollama_models:/root/.ollama
+
   sync:
     build: ./sync
     ports:

@@ -7,3 +7,4 @@ pymongo
 sacremoses
 PyYAML 
 python-json-logger
+ollama
