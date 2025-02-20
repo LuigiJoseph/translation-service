@@ -44,14 +44,18 @@ services:
     depends_on:
       - kafka
 
-  # ollama:
-  #   image: ollama/ollama
-  #   container_name: ollama
-  #   restart: always
-  #   ports:
-  #     - "11434:11434"
-  #   volumes:
-  #     - ollama_models:/root/.ollama
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama  # Ensure this volume is correctly mapped
+    restart: always
+    entrypoint: >
+      sh -c "ollama pull qwen2.5:1.5b-instruct|| true && ollama serve"
+# get in container bash run apt update && apt install -y curl then run ollama pull  qwen2.5:1.5b-instruct
+
 
   sync:
     build: ./sync
@@ -61,6 +65,9 @@ services:
      - CONFIG_FILE=/configs/config.yaml
     volumes:
      - ./configs/config.yaml:/configs/config.yaml
+    depends_on:
+      - mongo
+     
 
 
   mongo:
@@ -72,4 +79,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: root
     ports:
       - "27017:27017"
+
+volumes:
+  ollama_data: {} 
+
 

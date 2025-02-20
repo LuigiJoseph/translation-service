@@ -1,17 +1,17 @@
 from flask import request, jsonify
 from flask_restx import Resource, fields , Namespace
-# import ollama
-
+import requests
 
 from log.loggers import logger
 from models.helsinki_models import translate_text 
-from models.qwen_model_ollama import translate_text as translate_qwen 
+# from models.qwen_model_ollama import translate_text as translate_qwen 
 from mongodb.mongo import translation_cache , generate_cache_key
 from restapi_server import api
 
 api = Namespace("translation-endpoints", description="Translation controller")
 
-# OLLAMA_HOST = "http://ollama:11434/api/chat" 
+OLLAMA_URL = "http://ollama:11434/api/generate"
+MODEL_NAME = " qwen2.5:1.5b-instruct"  
 
 translation_model = api.model('TranslationRequest', {
     'target_locale': fields.String(required=False, description='Target languages'),
@@ -19,13 +19,33 @@ translation_model = api.model('TranslationRequest', {
     'text': fields.String(required=True, description='Text to translate')
 })
 
+
+def translate_qwen(text,source_lang,target_lang):
+    """Handles Qwen translation using Ollama"""
+    payload = {
+        "model": "qwen2.5:1.5b-instruct",  # Users can specify models dynamically if needed
+        "prompt": f"Translate from {source_lang} to {target_lang}: {text}",
+        "stream": False
+    }
+    response = requests.post(OLLAMA_URL, json=payload)
+
+    if response.status_code == 200:
+        translated_text = response.json().get("response", "").strip()
+        logger.info(f"Translated Text: {translated_text}")
+        return translated_text
+    else:
+        raise Exception(f"Ollama API error: {response.text}")
+
 MODEL_HANDLERS = {
             "helsinki": translate_text,
             "qwen": translate_qwen
                                 }
+
+
 logger.info(f"Available models: {MODEL_HANDLERS.keys()}")
 
 def translate_with_cache(text, source_locale, target_locale, model_name):
+            
             """Checks the cache before translating text."""
             
             # Generate a unique hash key
@@ -112,24 +132,4 @@ class Languages(Resource):
             "available_models": list(MODEL_HANDLERS.keys())
         }, 200
 
-# @api.route('/')
-# class Translation(Resource):
-#     @api.expect(translation_model)
-#     def post(self):
-#         """Translate text using the specified Ollama model"""
-#         data = request.json
-#         text = data.get('text')
-#         model = data.get('model')
-
-#         if not text or not model:
-#             return {'error': 'Text and model are required'}, 400
-
-#         try:
-#             # Use Ollama to generate the translation
-#             response = ollama.generate(model=model, prompt=f"Translate the following text: {text}")
-#             translation = response['response']
-
-#             return {'translation': translation}, 200
-#         except Exception as e:
-#             return {'error': str(e)}, 500
     

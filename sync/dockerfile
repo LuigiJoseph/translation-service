@@ -5,10 +5,11 @@ WORKDIR /model-api
 
 COPY . . 
 
+
 # installing dep
 RUN pip install  --no-cache-dir -r requirements.txt
-# or pip install --no-cache-dir -r requirements.txt
-# flask flask-restx torch transformers SentencePiece pymongo sacremoses PyYAML python-json-logger ollama
+# or flask flask-restx torch transformers SentencePiece pymongo sacremoses PyYAML python-json-logger ollama
+
 # exposing port 
 EXPOSE 5000
 
