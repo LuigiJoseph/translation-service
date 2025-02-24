@@ -7,5 +7,6 @@ database:
   name: translation
   collection: translation_cache
 
-huggingface:
-token: "add token here"
+ollama:
+  url: http://ollama:11434/api/generate
+  

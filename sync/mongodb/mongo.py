@@ -25,6 +25,9 @@ mongo_PASS = config["database"]["password"]
 
 mongo_url=f"mongodb://{mongo_USER}:{mongo_PASS}@{mongo_HOST}:{mongo_PORT}/"
 
+#for testing locally
+# mongo_url=f"mongodb://localhost:27017/"
+
 client = MongoClient(mongo_url)
 
 logger.info(f"mongoDB connected url: {mongo_url}")

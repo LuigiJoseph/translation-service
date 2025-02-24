@@ -50,11 +50,13 @@ services:
     ports:
       - "11434:11434"
     volumes:
-      - ollama_data:/root/.ollama  # Ensure this volume is correctly mapped
+      - ollama_data:/root/.ollama  
     restart: always
     entrypoint: >
-      sh -c "ollama pull qwen2.5:1.5b-instruct|| true && ollama serve"
-# get in container bash run apt update && apt install -y curl then run ollama pull  qwen2.5:1.5b-instruct
+      sh -c "apt update && apt install -y curl && ollama pull qwen2.5:1.5b-instruct || true && ollama serve"
+
+    # if it does not work get in container bash 
+    # run apt update && apt install -y curl then run ollama pull qwen2.5:1.5b-instruct
 
 
   sync:
