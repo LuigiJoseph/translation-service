@@ -32,7 +32,7 @@ def translate_with_cache(text, source_locale, target_locale, model_name):
     if cached_translation:
         translated_text = cached_translation["translated_text"]
         logger.info(f"Returning cached translation: {translated_text}")
-        return {"translated_text": translated_text}, 200 
+        return translated_text
 
     logger.info("Performing translation")
 
@@ -94,7 +94,7 @@ class TranslateResource(Resource):
                     'target_language': target_locale,
                     "model_used": model_name,
                     "translated_text": translated_text
-                }, 201
+                }, 200
 
 
 # METHOD = GET -> List models 
