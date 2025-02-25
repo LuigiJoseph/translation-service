@@ -1,9 +1,28 @@
 from confluent_kafka import Consumer, Producer
-from config import KAFKA_BROKER, TOPIC_OUT, TOPIC_IN
+from pathlib import Path
+import yaml
 import json
 import requests
 import threading
 from logger import get_logger
+
+
+
+configfile_path = Path("/configs/config.yaml")
+# configfile_path = Path(__file__).resolve().parents[2] / "configs"/"config.yaml"
+
+try:
+    with open(configfile_path, "r") as file:
+        config = yaml.safe_load(file)
+except Exception as e:
+    print(f"Error opening file: {e}")
+
+
+KAFKA_BROKER= config["kafka"]["kafka_broker"]
+TOPIC_IN=  config["kafka"]["topic_in"]
+TOPIC_OUT=  config["kafka"]["topic_out"]
+GROUP_ID= config["kafka"]["group_id"]
+
 
 # ✅ Initialize Two Separate Loggers
 logger = get_logger("translation_consumer")  # Logs consumer-related messages
@@ -24,16 +43,17 @@ logger.info("Kafka Consumer subscribed", extra={"topic": TOPIC_IN})
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 logger.info("Kafka Producer initialized", extra={"kafka_broker": KAFKA_BROKER})
 
-REST_API_URL = "http://sync:5000/api/v1/translate"
+REST_API_URL = "http://sync:5000/translation-endpoints/api/v1/translate/qwen"
 
 # ✅ Function to Call the Translation API
-def call_translation_api(text):
+def call_translation_api(text,source_locale, target_locale):
     payload = {
-        "source_target_locale": "en-tr",
-        "target_locale": "tr",
-        "text": text
+        'target_language': target_locale,
+        "source_language": source_locale,
+        "text":text
+
     }
-    logger.info(" Sending request to API", extra={"api_payload": payload})
+    logger.info("Sending request to API", extra={"api_payload": payload})
 
     try:
         response = requests.post(REST_API_URL, json=payload, headers={"Content-Type": "application/json"}, timeout=5)
@@ -87,10 +107,14 @@ def process_messages():
             logger.info(" Received text to translate", extra={"text_to_translate": text_to_translate})
 
             # ✅ Call translation API
-            translated_text = call_translation_api(text_to_translate)
+            translated_text = call_translation_api(text_to_translate,source_locale, target_locale)
 
             # ✅ Send translation result to TOPIC_OUT
-            response_message = json.dumps({"translated_text": translated_text})
+            response_message = json.dumps({
+                    "text":text_to_translate,
+                    "source_language": source_locale,
+                    'target_language': target_locale,
+                    "translated_text": translated_text})
             producer.produce(TOPIC_OUT, value=response_message)
             producer.flush()
 
@@ -100,6 +124,7 @@ def process_messages():
             logger.error(" JSON Decoding Error", extra={"error_details": str(e), "raw_message": msg_raw}, exc_info=True)
         except Exception as e:
             logger.error(" Unexpected error processing message", extra={"error_details": str(e)}, exc_info=True)
+            logger.info("e", e)
 
 
 if __name__ == "__main__":

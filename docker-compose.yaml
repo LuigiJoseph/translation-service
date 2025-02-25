@@ -41,6 +41,9 @@ services:
     build: ./kafka  
     environment:
       - KAFKA_BROKER=kafka:9093
+      - CONFIG_FILE=/configs/config.yaml
+    volumes:
+      - ./configs/config.yaml:/configs/config.yaml
     depends_on:
       - kafka
 

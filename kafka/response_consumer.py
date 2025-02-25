@@ -1,5 +1,4 @@
 from confluent_kafka import Consumer
-from config import KAFKA_BROKER, TOPIC_OUT
 import json
 from logger import get_logger
 

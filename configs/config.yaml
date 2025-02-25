@@ -10,3 +10,9 @@ database:
 ollama:
   url: http://ollama:11434/api/generate
   
+
+kafka:
+  kafka_broker: kafka:9093
+  topic_in: topic_in
+  topic_out: topic_out
+  group_id: translation_group
