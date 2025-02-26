@@ -22,7 +22,7 @@ TOPIC_OUT=  config["kafka"]["topic_out"]
 GROUP_ID= config["kafka"]["group_id"]
 
 
-# ✅ Configure JSON Logging (Avoids "message" Key Conflicts)
+#  Configure JSON Logging (Avoids "message" Key Conflicts)
 logger = logging.getLogger("translation_producer")
 logger.setLevel(logging.DEBUG)
 
@@ -41,7 +41,7 @@ console_handler.setFormatter(json_formatter)
 logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
-# ✅ Initialize Kafka Producer
+#  Initialize Kafka Producer
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 logger.info("Kafka Producer initialized", extra={"kafka_broker": KAFKA_BROKER, "topic": TOPIC_IN})
 
@@ -53,18 +53,19 @@ def delivery_report(err, msg):
     if err is not None:
         logger.error("Kafka message delivery failed", extra={"error_details": str(err)})
     else:
-        logger.info("✅ Message delivered", extra={"topic": msg.topic(), "partition": msg.partition(), "offset": msg.offset()})
+        logger.info(" Message delivered", extra={"topic": msg.topic(), "partition": msg.partition(), "offset": msg.offset()})
 
 
 
-# ✅ Function to send messages
-def send_translation_request(text, source_locale, target_locale):
+# Function to send messages
+def send_translation_request(text, source_locale, target_locale, model_name):
     try:
         data = json.dumps({
-        'target_language': target_locale,
-        "source_language": source_locale,
-        "text":text
-            }, ensure_ascii=False)  # ✅ Added ensure_ascii=False
+        'target_locale': target_locale,
+        "source_locale": source_locale,
+        "text":text,
+        "model_name": model_name
+            }, ensure_ascii=False)  #  Added ensure_ascii=False
 
         # Callback function that gets called when processing message
         producer.produce(TOPIC_IN, value=data, callback=delivery_report)
@@ -78,11 +79,11 @@ if __name__ == "__main__":
     text = str(input("Please enter text to be translated: "))
     source_locale = str(input("Please enter the source language (e.g: en for English, tr for Turkish)"))
     target_locale = str(input("Please enter the target language (e.g: en for English, tr for Turkish)"))
-    model_name = str(input("Please enter the model name (helsinki, qwen)"))
+    model_name = str(input("Please enter the model name (transformers, qwen)"))
     
     logger.info("User input received", extra={
         "input_text_payload": text,
         "source_locale": source_locale,
         "target locale": target_locale})
     
-    send_translation_request(text, source_locale, target_locale)
+    send_translation_request(text, source_locale, target_locale, model_name)
