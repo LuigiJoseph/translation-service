@@ -64,7 +64,7 @@ def call_translation_api(text, source_locale, target_locale, model_name):
     try:
         response = requests.post(REST_API_URL, json=payload, headers={"Content-Type": "application/json"}, timeout=5)
         
-        logger.info("🔍 API Response Successful", extra={
+        logger.info(" API Response Successful", extra={
             "status_code": response.status_code,
             "response_headers": dict(response.headers),
             "api_response": response.text
@@ -95,7 +95,7 @@ def process_messages():
             continue
 
         try:
-            # ✅ Log the raw Kafka message
+            #  Log the raw Kafka message
             msg_raw = msg.value().decode('utf-8') if msg.value() else None
             logger.debug("Kafka message received", extra={"message_raw": msg_raw})
 
@@ -103,23 +103,29 @@ def process_messages():
                 logger.error(" Received empty message from Kafka. Skipping...")
                 continue
 
-            # ✅ Parse message
+            #  Parse message
             message_data = json.loads(msg_raw)
             text_to_translate = message_data.get("text")
             source_locale = message_data.get("source_locale")
             target_locale = message_data.get("target_locale")
             model_name = message_data.get("model_name")
 
-            if text_to_translate is None:
-                logger.error(" Received message does NOT contain 'text' key. Skipping...", extra={"message_data": message_data})
-                continue
+            # Stop processing if a field is
+            if not text_to_translate or not source_locale or not target_locale or not model_name:
+                logger.error(" Missing required fields in Kafka message. Skipping...", extra={
+                    "text": text_to_translate,
+                    "source_locale": source_locale,
+                    "target_locale": target_locale,
+                    "model_name": model_name
+                })
+
 
             logger.info(" Received text to translate", extra={"text_to_translate": text_to_translate})
 
-            # ✅ Call translation API
+            #  Call translation API
             translated_text = call_translation_api(text_to_translate,source_locale, target_locale, model_name)
 
-            # ✅ Send translation result to TOPIC_OUT
+            #  Send translation result to TOPIC_OUT
             response_message = json.dumps({
                     "text":text_to_translate,
                     "source_language": source_locale,
@@ -135,7 +141,6 @@ def process_messages():
             logger.error(" JSON Decoding Error", extra={"error_details": str(e), "raw_message": msg_raw}, exc_info=True)
         except Exception as e:
             logger.error(" Unexpected error processing message", extra={"error_details": str(e)}, exc_info=True)
-            logger.info("e", e)
 
 
 if __name__ == "__main__":

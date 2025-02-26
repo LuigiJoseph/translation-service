@@ -77,9 +77,9 @@ def send_translation_request(text, source_locale, target_locale, model_name):
 
 if __name__ == "__main__":
     text = str(input("Please enter text to be translated: "))
-    source_locale = str(input("Please enter the source language (e.g: en for English, tr for Turkish)"))
-    target_locale = str(input("Please enter the target language (e.g: en for English, tr for Turkish)"))
-    model_name = str(input("Please enter the model name (transformers, qwen)"))
+    source_locale = str(input("Please enter the source language ( EN for English, TR for Turkish, AR for Arabic)")).lower()
+    target_locale = str(input("Please enter the target language ( EN for English, TR for Turkish, AR for Arabic)")).lower()
+    model_name = str(input("Please enter the model name (helsinki, qwen)"))
     
     logger.info("User input received", extra={
         "input_text_payload": text,

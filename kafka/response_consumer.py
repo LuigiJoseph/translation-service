@@ -1,6 +1,20 @@
 from confluent_kafka import Consumer
 import json
+from pathlib import Path
+import yaml
 from logger import get_logger
+
+# ✅ Load Configuration
+configfile_path = Path("/configs/config.yaml")
+try:
+    with open(configfile_path, "r") as file:
+        config = yaml.safe_load(file)
+except Exception as e:
+    print(f"Error opening config file: {e}")
+
+KAFKA_BROKER = config["kafka"]["kafka_broker"]
+TOPIC_OUT = config["kafka"]["topic_out"]
+GROUP_ID = config["kafka"]["response_group"]
 
 # ✅ Initialize Logger
 logger = get_logger("response_consumer")
@@ -8,47 +22,68 @@ logger = get_logger("response_consumer")
 # ✅ Initialize Kafka Consumer
 consumer = Consumer({
     'bootstrap.servers': KAFKA_BROKER,
-    'group.id': 'response_group',
+    'group.id': GROUP_ID,
     'auto.offset.reset': 'earliest'
 })
 consumer.subscribe([TOPIC_OUT])
+
 logger.info("Kafka Response Consumer started", extra={"topic": TOPIC_OUT})
 
+# ✅ Function to Process Incoming Response Messages
+def process_response_messages():
+    while True:
+        msg = consumer.poll(1.0)
 
-
-# ✅ Start consuming messages
-while True:
-    msg = consumer.poll(1.0)
-
-    if msg is None:
-        logger.debug(" No new out messages, waiting...")
-        continue
-
-    if msg.error():
-
-        logger.error(" Response Consumer Error", extra={"kafka_error": str(msg.error())})
-        continue
-
-    try:
-        # ✅ Log the raw Kafka message
-        msg_raw = msg.value().decode('utf-8') if msg.value() else None
-        logger.debug("📝 Raw response message received", extra={"message_raw": msg_raw})
-
-        if msg_raw is None:
-            logger.error(" Received empty message from Kafka. Skipping...")
+        if msg is None:
+            logger.debug(" No new response messages, waiting...")
             continue
 
-        # ✅ Parse message
-        message_data = json.loads(msg_raw)
-        translated_text = message_data.get("translated_text")
-
-        if translated_text is None:
-            logger.error(" Received message does NOT contain 'translated_text' key. Skipping...", extra={"message_data": message_data})
+        if msg.error():
+            logger.error(" Kafka Consumer Error", extra={"kafka_error": str(msg.error())})
             continue
 
-        logger.info("📥 Received Translated Text", extra={"translated_text": translated_text})
+        try:
+            #  Log the raw Kafka message
+            msg_raw = msg.value().decode('utf-8') if msg.value() else None
+            logger.debug("Raw response message received", extra={"message_raw": msg_raw})
 
-    except json.JSONDecodeError as e:
-        logger.error(" JSON Decoding Error", extra={"error_details": str(e), "raw_message": msg_raw}, exc_info=True)
-    except Exception as e:
-        logger.error(" Unexpected error processing message", extra={"error_details": str(e)}, exc_info=True)
+            if msg_raw is None:
+                logger.error(" Received empty message from Kafka. Skipping...")
+                continue
+
+            #  Parse message
+            message_data = json.loads(msg_raw)
+            text = message_data.get("text")
+            source_locale = message_data.get("source_language")
+            target_locale = message_data.get("target_language")
+            translated_text = message_data.get("translated_text")
+            model_name = message_data.get("model_name")
+
+            #  Validate message content
+            if not text or not source_locale or not target_locale or not translated_text or not model_name:
+                logger.error(" Missing required fields in response message. Skipping...", extra={
+                    "text": text,
+                    "source_locale": source_locale,
+                    "target_locale": target_locale,
+                    "translated_text": translated_text,
+                    "model_name": model_name
+                })
+                continue
+
+            # ✅ Log the successful translation event
+            logger.info(" Processed Translated Message", extra={
+                "original_text": text,
+                "source_locale": source_locale,
+                "target_locale": target_locale,
+                "translated_text": translated_text,
+                "model_name": model_name
+            })
+
+        except json.JSONDecodeError as e:
+            logger.error(" JSON Decoding Error", extra={"error_details": str(e), "raw_message": msg_raw}, exc_info=True)
+        except Exception as e:
+            logger.error(" Unexpected error processing message", extra={"error_details": str(e)}, exc_info=True)
+
+# ✅ Run the response consumer
+if __name__ == "__main__":
+    process_response_messages()
