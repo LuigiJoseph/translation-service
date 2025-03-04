@@ -16,3 +16,4 @@ kafka:
   topic_in: topic_in
   topic_out: topic_out
   group_id: translation_group
+  rest_api_url: http://sync:5000/translation-endpoints/api/v1/translate

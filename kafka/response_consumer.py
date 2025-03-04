@@ -1,17 +1,13 @@
 from confluent_kafka import Consumer
 import json
-from pathlib import Path
-import yaml
+import os
+import sys
 from logger import get_logger
 
-# ✅ Load Configuration
-configfile_path = Path("/configs/config.yaml")
-try:
-    with open(configfile_path, "r") as file:
-        config = yaml.safe_load(file)
-except Exception as e:
-    print(f"Error opening config file: {e}")
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
+from config import load_config
 
+config = load_config()
 KAFKA_BROKER = config["kafka"]["kafka_broker"]
 TOPIC_OUT = config["kafka"]["topic_out"]
 GROUP_ID = config["kafka"]["response_group"]

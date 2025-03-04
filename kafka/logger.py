@@ -1,10 +1,9 @@
 import logging
 import json
 from pathlib import Path
-import os
 
 # ✅ Ensure the log directory exists
-log_dir = Path("/json_logs")
+log_dir = Path("./json_logs")
 log_dir.mkdir(parents=True, exist_ok=True)
 
 # ✅ Custom JSON Formatter

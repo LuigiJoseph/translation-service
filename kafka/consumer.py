@@ -1,28 +1,20 @@
 from confluent_kafka import Consumer, Producer
-from pathlib import Path
-import yaml
+import os
+import sys
 import json
 import requests
-import threading
+
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
+from config import load_config
 from logger import get_logger
 
-
-
-configfile_path = Path("/configs/config.yaml")
-# configfile_path = Path(__file__).resolve().parents[2] / "configs"/"config.yaml"
-
-try:
-    with open(configfile_path, "r") as file:
-        config = yaml.safe_load(file)
-except Exception as e:
-    print(f"Error opening file: {e}")
-
-
+config = load_config()
 KAFKA_BROKER= config["kafka"]["kafka_broker"]
 TOPIC_IN=  config["kafka"]["topic_in"]
 TOPIC_OUT=  config["kafka"]["topic_out"]
 GROUP_ID= config["kafka"]["group_id"]
-
+REST_API_URL= config["kafka"]["rest_api_url"]
 
 # ✅ Initialize Two Separate Loggers
 logger = get_logger("translation_consumer")  # Logs consumer-related messages
@@ -51,7 +43,8 @@ def call_translation_api(text, source_locale, target_locale, model_name):
         logger.error("Unsupported model received", extra={"model_name": model_name})
         return "ERROR: unsupported model"
 
-    REST_API_URL = f"http://sync:5000/translation-endpoints/api/v1/translate/{model_name}"    
+
+    REST_API_URL = f"{REST_API_URL}/{model_name}"    
 
 
     payload = {
@@ -112,12 +105,7 @@ def process_messages():
 
             # Stop processing if a field is
             if not text_to_translate or not source_locale or not target_locale or not model_name:
-                logger.error(" Missing required fields in Kafka message. Skipping...", extra={
-                    "text": text_to_translate,
-                    "source_locale": source_locale,
-                    "target_locale": target_locale,
-                    "model_name": model_name
-                })
+                logger.error(" Missing required fields in Kafka message. Skipping...", extra={"message_data": message_data})
 
 
             logger.info(" Received text to translate", extra={"text_to_translate": text_to_translate})

@@ -1,16 +1,12 @@
-import yaml
-from pathlib import Path
 import requests
+import os 
+import sys
 
 from log.loggers import logger
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from config import load_config
 
-configfile_path = Path("/configs/config.yaml")
-# configfile_path = Path(__file__).resolve().parents[2] / "configs"/"config.yaml"
-try:
-    with open(configfile_path, "r") as file:
-        config = yaml.safe_load(file)
-except Exception as e:
-    logger.info(f"Error opening file: {e}")
+config = load_config()
 
 OLLAMA_URL = config["ollama"]["url"]
 

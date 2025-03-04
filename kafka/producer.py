@@ -1,21 +1,15 @@
 from confluent_kafka import Producer
 import json
+import os
+import sys
 import logging
-from pathlib import Path
-import yaml
 from pythonjsonlogger import jsonlogger
 
 
-configfile_path = Path("/configs/config.yaml")
-# configfile_path = Path(__file__).resolve().parents[2] / "configs"/"config.yaml"
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
+from config import load_config
 
-try:
-    with open(configfile_path, "r") as file:
-        config = yaml.safe_load(file)
-except Exception as e:
-    print(f"Error opening file: {e}")
-
-
+config = load_config()
 KAFKA_BROKER= config["kafka"]["kafka_broker"]
 TOPIC_IN=  config["kafka"]["topic_in"]
 TOPIC_OUT=  config["kafka"]["topic_out"]

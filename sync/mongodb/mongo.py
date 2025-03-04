@@ -4,16 +4,10 @@ import yaml
 import hashlib
 
 from log.loggers import logger
+from config import load_config
 
-configfile_path = Path("/configs/config.yaml")
-# configfile_path = Path(__file__).resolve().parents[2] / "configs"/"config.yaml"
+config = load_config()
 
-try:
-    with open(configfile_path, "r") as file:
-        logger.info("File opened successfully!")
-        config = yaml.safe_load(file)
-except Exception as e:
-    logger.info(f"Error opening file: {e}")
 
 mongo_HOST = config["database"]["host"]
 mongo_PORT = int(config["database"]["port"])
