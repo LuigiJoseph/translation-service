@@ -1,9 +1,20 @@
 from confluent_kafka import Consumer, Producer
-from config import KAFKA_BROKER, TOPIC_OUT, TOPIC_IN
+import os
+import sys
 import json
 import requests
-import threading
+
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
+from config import load_config
 from logger import get_logger
+
+config = load_config()
+KAFKA_BROKER= config["kafka"]["kafka_broker"]
+TOPIC_IN=  config["kafka"]["topic_in"]
+TOPIC_OUT=  config["kafka"]["topic_out"]
+GROUP_ID= config["kafka"]["group_id"]
+REST_API_URL= config["kafka"]["rest_api_url"]
 
 # ✅ Initialize Two Separate Loggers
 logger = get_logger("translation_consumer")  # Logs consumer-related messages
@@ -24,21 +35,29 @@ logger.info("Kafka Consumer subscribed", extra={"topic": TOPIC_IN})
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 logger.info("Kafka Producer initialized", extra={"kafka_broker": KAFKA_BROKER})
 
-REST_API_URL = "http://sync:5000/api/v1/translate"
 
 # ✅ Function to Call the Translation API
-def call_translation_api(text):
+def call_translation_api(text, source_locale, target_locale, model_name):
+    # Dynamically changes the api depending on the model names
+    if model_name not in ["qwen", "helsinki"]:
+        logger.error("Unsupported model received", extra={"model_name": model_name})
+        return "ERROR: unsupported model"
+
+
+    REST_API_URL = f"{REST_API_URL}/{model_name}"    
+
+
     payload = {
-        "source_target_locale": "en-tr",
-        "target_locale": "tr",
-        "text": text
+        'target_locale': target_locale,
+        "source_locale": source_locale,
+        "text":text
     }
-    logger.info(" Sending request to API", extra={"api_payload": payload})
+    logger.info("Sending request to API", extra={"api_payload": payload, "api_url": REST_API_URL})
 
     try:
         response = requests.post(REST_API_URL, json=payload, headers={"Content-Type": "application/json"}, timeout=5)
         
-        logger.info("🔍 API Response Successful", extra={
+        logger.info(" API Response Successful", extra={
             "status_code": response.status_code,
             "response_headers": dict(response.headers),
             "api_response": response.text
@@ -52,6 +71,7 @@ def call_translation_api(text):
 
     except requests.RequestException as e:
         logger.error(" Models being loaded or there might be some other issue. Try again later", extra={"error_details": str(e)}, exc_info=True)
+        logger.info(e)
         return "ERROR: Translation API request failed"
 
 # ✅ Function for Processing Incoming Messages
@@ -68,7 +88,7 @@ def process_messages():
             continue
 
         try:
-            # ✅ Log the raw Kafka message
+            #  Log the raw Kafka message
             msg_raw = msg.value().decode('utf-8') if msg.value() else None
             logger.debug("Kafka message received", extra={"message_raw": msg_raw})
 
@@ -76,21 +96,30 @@ def process_messages():
                 logger.error(" Received empty message from Kafka. Skipping...")
                 continue
 
-            # ✅ Parse message
+            #  Parse message
             message_data = json.loads(msg_raw)
             text_to_translate = message_data.get("text")
+            source_locale = message_data.get("source_locale")
+            target_locale = message_data.get("target_locale")
+            model_name = message_data.get("model_name")
 
-            if text_to_translate is None:
-                logger.error(" Received message does NOT contain 'text' key. Skipping...", extra={"message_data": message_data})
-                continue
+            # Stop processing if a field is
+            if not text_to_translate or not source_locale or not target_locale or not model_name:
+                logger.error(" Missing required fields in Kafka message. Skipping...", extra={"message_data": message_data})
+
 
             logger.info(" Received text to translate", extra={"text_to_translate": text_to_translate})
 
-            # ✅ Call translation API
-            translated_text = call_translation_api(text_to_translate)
+            #  Call translation API
+            translated_text = call_translation_api(text_to_translate,source_locale, target_locale, model_name)
 
-            # ✅ Send translation result to TOPIC_OUT
-            response_message = json.dumps({"translated_text": translated_text})
+            #  Send translation result to TOPIC_OUT
+            response_message = json.dumps({
+                    "text":text_to_translate,
+                    "source_language": source_locale,
+                    'target_language': target_locale,
+                    "translated_text": translated_text,
+                    "model_name": model_name})
             producer.produce(TOPIC_OUT, value=response_message)
             producer.flush()
 
