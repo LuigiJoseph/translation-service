@@ -1,3 +1,4 @@
 confluent-kafka
 requests
 python-json-logger
+PyYAML
