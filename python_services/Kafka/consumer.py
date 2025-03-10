@@ -1,13 +1,10 @@
 from confluent_kafka import Consumer, Producer
-import os
-import sys
 import json
 import requests
 
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
 from config import load_config
-from logger import get_logger
+from python_services.Kafka.logger import get_logger
 
 config = load_config()
 KAFKA_BROKER= config["kafka"]["kafka_broker"]
@@ -41,7 +38,7 @@ def call_translation_api(text, source_locale, target_locale, model_name):
     # Dynamically changes the api depending on the model names
     if model_name not in ["qwen", "helsinki"]:
         logger.error("Unsupported model received", extra={"model_name": model_name})
-        return "ERROR: unsupported model"
+        return {"success:": False, "error:" : "Unsupported Model"}
 
 
     REST_API_URL = f"{REST_API_URL}/{model_name}"    
@@ -65,16 +62,25 @@ def call_translation_api(text, source_locale, target_locale, model_name):
 
         if response.status_code == 200:
             response_json = response.json()
-            return response_json.get("translated_text", " ERROR: Missing 'translated_text' in API response")
+            translated_text = response_json.get("translated_text")
+        
+            if translated_text:
+                return {"success:" :True, "translated_text:": translated_text}
+            else:
+                return {"success:" :False, "error:": "Missing 'translated_text' in API response"}
 
-        return f" ERROR: API returned {response.status_code} - {response.text}"
+        return {"success": False, "error": f"API returned {response.status_code} - {response.text}"}
 
     except requests.RequestException as e:
-        logger.error(" Models being loaded or there might be some other issue. Try again later", extra={"error_details": str(e)}, exc_info=True)
-        logger.info(e)
-        return "ERROR: Translation API request failed"
+        logger.error("Translation API request failed", 
+                    extra={
+                        "error_details": str(e),
+                        "payload": payload,  #  Adding the payload details
+                        "api_url": REST_API_URL  
+                    }, exc_info=True)
+        return {"success": False, "error": "Translation API request failed"}
 
-# ✅ Function for Processing Incoming Messages
+#  Function for Processing Incoming Messages
 def process_messages():
     while True:
         msg = consumer.poll(1.0)
@@ -111,15 +117,35 @@ def process_messages():
             logger.info(" Received text to translate", extra={"text_to_translate": text_to_translate})
 
             #  Call translation API
-            translated_text = call_translation_api(text_to_translate,source_locale, target_locale, model_name)
+            response = call_translation_api(text_to_translate,source_locale, target_locale, model_name)
 
-            #  Send translation result to TOPIC_OUT
-            response_message = json.dumps({
+            if response.get("success"):
+                translated_text = response["translated_text"]
+                response_message = json.dumps({
                     "text":text_to_translate,
                     "source_language": source_locale,
                     'target_language': target_locale,
                     "translated_text": translated_text,
-                    "model_name": model_name})
+                    "model_name": model_name})    
+            
+            else:
+                error_message = response.get("error", "Unknown error")  #  Extract error message
+                logger.error("Translation failed", extra={
+                    "text": text_to_translate,
+                    "source_locale": source_locale,
+                    "target_locale": target_locale,
+                    "error_message": error_message
+                })
+
+                response_message = json.dumps({
+                    "text": text_to_translate,
+                    "source_language": source_locale,
+                    "target_language": target_locale,
+                    "error": error_message,  #  Store error instead of translation
+                    "model_name": model_name
+                })
+
+
             producer.produce(TOPIC_OUT, value=response_message)
             producer.flush()
 

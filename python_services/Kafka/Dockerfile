@@ -8,7 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all async components
 COPY *.py ./
 
+ENV PYTHONPATH=/app
 
 # Default command - can be overridden when running the container
-CMD ["python", "consumer.py", "response_consumer.py"]
+CMD ["python", "-m","python_services.Kafka.consumer", "python_services.Kafka.response_consumer"]
 

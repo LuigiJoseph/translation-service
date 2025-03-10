@@ -38,12 +38,16 @@ services:
       - kafka
  
   async-service:
-    build: ./kafka  
+    build:
+      context: ./python_services/Kafka
+      dockerfile: Dockerfile 
     environment:
       - KAFKA_BROKER=kafka:9093
       - CONFIG_FILE=/configs/config.yaml
+      - PYTHONPATH=/app
     volumes:
       - ./configs/config.yaml:/configs/config.yaml
+      - .:/app
     depends_on:
       - kafka
 
@@ -63,13 +67,17 @@ services:
 
 
   sync:
-    build: ./sync
+    build:
+      context: ./python_services/sync
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
     environment:
      - CONFIG_FILE=/configs/config.yaml
+     - PYTHONPATH=/model-api
     volumes:
      - ./configs/config.yaml:/configs/config.yaml
+     - .:/model-api
     depends_on:
       - mongo
      

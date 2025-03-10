@@ -1,6 +1,6 @@
 from transformers import MarianMTModel, MarianTokenizer
 
-from log.loggers import logger
+from python_services.sync.log.loggers import logger
 MODELS={ 
     "tr-en": {
                     "name": "ckartal/turkish-to-english-finetuned-model",  

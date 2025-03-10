@@ -1,12 +1,10 @@
 from confluent_kafka import Producer
 import json
-import os
-import sys
 import logging
 from pythonjsonlogger import jsonlogger
 
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
+
 from config import load_config
 
 config = load_config()
@@ -59,7 +57,7 @@ def send_translation_request(text, source_locale, target_locale, model_name):
         "source_locale": source_locale,
         "text":text,
         "model_name": model_name
-            }, ensure_ascii=False)  #  Added ensure_ascii=False
+            }, ensure_ascii=False)  
 
         # Callback function that gets called when processing message
         producer.produce(TOPIC_IN, value=data, callback=delivery_report)
@@ -78,6 +76,7 @@ if __name__ == "__main__":
     logger.info("User input received", extra={
         "input_text_payload": text,
         "source_locale": source_locale,
-        "target locale": target_locale})
+        "target locale": target_locale,
+        "model_name": model_name})
     
     send_translation_request(text, source_locale, target_locale, model_name)

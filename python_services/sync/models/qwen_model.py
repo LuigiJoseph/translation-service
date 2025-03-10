@@ -1,15 +1,14 @@
 import requests
-import os 
-import sys
 
-from log.loggers import logger
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from python_services.sync.log.loggers import logger
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from config import load_config
 
 config = load_config()
 
 OLLAMA_URL = config["ollama"]["url"]
-
+logger.info(f"ollama running")
 def translate_qwen(text, source_lang, target_lang):
     """Handles Qwen translation using Ollama"""
 
