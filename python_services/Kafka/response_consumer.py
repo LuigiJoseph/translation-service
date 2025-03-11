@@ -1,10 +1,9 @@
 from confluent_kafka import Consumer
 import json
-import os
-import sys
-from logger import get_logger
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
+
+
+from python_services.Kafka.logger import get_logger
 from config import load_config
 
 config = load_config()

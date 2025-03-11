@@ -3,7 +3,7 @@ from pathlib import Path
 import yaml
 import hashlib
 
-from log.loggers import logger
+from python_services.sync.log.loggers import logger
 from config import load_config
 
 config = load_config()

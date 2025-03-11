@@ -3,9 +3,8 @@ FROM python:3.9
 
 WORKDIR /model-api
 
-COPY . . 
 
-
+COPY requirements.txt .
 # installing dep
 RUN pip install  --no-cache-dir -r requirements.txt
 # or flask flask-restx torch transformers SentencePiece pymongo sacremoses PyYAML python-json-logger ollama
@@ -13,5 +12,10 @@ RUN pip install  --no-cache-dir -r requirements.txt
 # exposing port 
 EXPOSE 5000
 
-CMD [ "python", "./app.py"]
+COPY . .
+
+
+ENV PYTHONPATH=/model-api
+
+CMD [ "python", "-m","python_services.sync.app"]
 

@@ -1,12 +1,10 @@
 from confluent_kafka import Producer
 import json
-import os
-import sys
 import logging
 from pythonjsonlogger import jsonlogger
 
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
+
 from config import load_config
 
 config = load_config()

@@ -1,11 +1,11 @@
 from flask import request, jsonify
 from flask_restx import Resource, fields , Namespace
 
-from log.loggers import logger
-from models.transformers_models import translate_text 
-from models.qwen_model import translate_qwen
-from mongodb.mongo import translation_cache , generate_cache_key
-from restapi_server import api
+from python_services.sync.log.loggers import logger
+from python_services.sync.models.transformers_models import translate_text 
+from python_services.sync.models.qwen_model import translate_qwen
+from python_services.sync.mongodb.mongo import translation_cache , generate_cache_key
+from python_services.sync.restapi_server import api
 
 api = Namespace("translation-endpoints", description="Translation controller")
 translation_model = api.model('TranslationRequest', {
@@ -77,8 +77,8 @@ class TranslateResource(Resource):
         source_locale = data.get("source_locale")
         text = data.get("text")
 
-        if not text:
-            api.abort(400, "Missing required fields: text, source_locale, target_locale")
+        if any(value in ["string", ""] for value in data.values()):
+            return {"error": "Invalid input values"}, 400
         
 
         model_name = model_name.lower()

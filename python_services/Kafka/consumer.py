@@ -1,15 +1,10 @@
 from confluent_kafka import Consumer, Producer
-import os
-import sys
 import json
 import requests
 
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__) + '/..')))
-# sys.path.append("/app")  
-
 from config import load_config
-from logger import get_logger
+from python_services.Kafka.logger import get_logger
 
 config = load_config()
 KAFKA_BROKER= config["kafka"]["kafka_broker"]
@@ -21,6 +16,7 @@ REST_API_URL= config["kafka"]["rest_api_url"]
 # ✅ Initialize Two Separate Loggers
 logger = get_logger("translation_consumer")  # Logs consumer-related messages
 
+MODEL_NAMES = {"helsinki", "qwen"}
 
 # ✅ Initialize Kafka Consumer for Incoming Messages
 consumer = Consumer({
@@ -41,7 +37,7 @@ logger.info("Kafka Producer initialized", extra={"kafka_broker": KAFKA_BROKER})
 # ✅ Function to Call the Translation API
 def call_translation_api(text, source_locale, target_locale, model_name):
     # Dynamically changes the api depending on the model names
-    if model_name not in ["qwen", "helsinki"]:
+    if model_name not in MODEL_NAMES:
         logger.error("Unsupported model received", extra={"model_name": model_name})
         return {"success:": False, "error:" : "Unsupported Model"}
 
