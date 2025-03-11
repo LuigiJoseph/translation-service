@@ -11,5 +11,5 @@ COPY *.py ./
 ENV PYTHONPATH=/app
 
 # Default command - can be overridden when running the container
-CMD ["python", "-m","python_services.Kafka.consumer", "python_services.Kafka.response_consumer"]
+CMD ["python", "-m","python_services.Kafka.consumer"]
 

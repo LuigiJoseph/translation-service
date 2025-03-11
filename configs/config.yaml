@@ -10,6 +10,8 @@ database:
 ollama:
   url: http://ollama:11434/api/generate
   
+qwen:
+  model_name: qwen2.5:1.5b-instruct
 
 kafka:
   kafka_broker: kafka:9093
