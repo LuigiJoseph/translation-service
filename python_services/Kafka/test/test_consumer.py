@@ -3,6 +3,10 @@ import pytest
 from unittest.mock import patch, Mock
 
 from python_services.Kafka.consumer import call_translation_api, process_messages, TOPIC_OUT
+from config import load_config
+
+config = load_config()
+REST_API_URL= config["kafka"]["rest_api_url"]
 
 @pytest.fixture
 def mock_kafka_consumer():
@@ -15,8 +19,6 @@ def mock_kafka_producer():
     producer = Mock()
     producer.produce = Mock() 
     return producer
-
-REST_API_URL = "http://sync:5000/translation-endpoints/api/v1/translate"
 
 
 @patch("requests.post")
