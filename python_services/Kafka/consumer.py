@@ -42,7 +42,7 @@ def call_translation_api(text, source_locale, target_locale, model_name):
         return {"success:": False, "error:" : "Unsupported Model"}
 
 
-    REST_API_URL = f"{REST_API_URL}/{model_name}"    
+    rest_api_url = f"{REST_API_URL}/{model_name}"    
 
 
     payload = {
@@ -50,10 +50,10 @@ def call_translation_api(text, source_locale, target_locale, model_name):
         "source_locale": source_locale,
         "text":text
     }
-    logger.info("Sending request to API", extra={"api_payload": payload, "api_url": REST_API_URL})
+    logger.info("Sending request to API", extra={"api_payload": payload, "api_url": rest_api_url})
 
     try:
-        response = requests.post(REST_API_URL, json=payload, headers={"Content-Type": "application/json"}, timeout=5)
+        response = requests.post(rest_api_url, json=payload, headers={"Content-Type": "application/json"}, timeout=5)
         
         logger.info(" API Response Successful", extra={
             "status_code": response.status_code,
@@ -77,7 +77,7 @@ def call_translation_api(text, source_locale, target_locale, model_name):
                     extra={
                         "error_details": str(e),
                         "payload": payload,  #  Adding the payload details
-                        "api_url": REST_API_URL  
+                        "api_url": rest_api_url  
                     }, exc_info=True)
         return {"success": False, "error": "Translation API request failed"}
 
