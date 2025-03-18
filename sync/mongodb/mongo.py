@@ -1,7 +1,9 @@
 from pymongo import MongoClient
+from pathlib import Path
+import yaml
 import hashlib
 
-from python_services.sync.log.loggers import logger
+from log.loggers import logger
 from python_services.config import load_config
 
 config = load_config()
@@ -33,19 +35,3 @@ translation_cache = translation_db[mongo_collection]
 def generate_cache_key(text, source_locale, target_locale, model_name):
     key_string = f"{text}-{source_locale}-{target_locale}-{model_name}"
     return hashlib.sha256(key_string.encode()).hexdigest()
-
-def cache_translations(cache_key, text, source_locale, target_locale, model_name, translated_text):
-    """Store translation in MongoDB."""
-    translation_cache.insert_one({
-            "_id": cache_key,
-            "source_text": text,
-            "source_language": source_locale,
-            "target_language": target_locale,
-            "model_used": model_name,
-            "translated_text": translated_text
-    })
-
-def get_cached_translation(cache_key):
-    """Retrieve cached translation from MongoDB using the generated cache key."""
-    cached_result = translation_cache.find_one({"_id": cache_key})
-    return cached_result

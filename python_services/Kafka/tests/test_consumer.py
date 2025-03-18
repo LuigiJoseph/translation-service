@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import patch, Mock
 
 from python_services.Kafka.consumer import call_translation_api, process_messages, TOPIC_OUT
-from config import load_config
+from python_services.config import load_config
 
 config = load_config()
 REST_API_URL= config["kafka"]["rest_api_url"]

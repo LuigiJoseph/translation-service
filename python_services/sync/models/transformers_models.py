@@ -16,6 +16,11 @@ MODELS={
                     "name": "Helsinki-NLP/opus-mt-tc-big-en-ar",
                     "src_lang": "en",
                     "tgt_lang": "ar",
+                },
+    "ar-en": {
+                    "name": "Helsinki-NLP/opus-mt-ar-en",
+                    "src_lang": "ar",
+                    "tgt_lang": "en",
                 }
     }
 

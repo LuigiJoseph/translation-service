@@ -10,7 +10,8 @@ def load_config():
         if CONFIG_FILE:
                 configfile_path = Path(CONFIG_FILE)
         else:
-                configfile_path = Path(__file__).parent / "configs/config.yaml"  
+                configfile_path = Path(__file__).parent.parent / "configs/config.yaml"
+ 
 
         try:
             with open(configfile_path, "r") as file:

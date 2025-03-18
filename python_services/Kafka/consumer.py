@@ -3,7 +3,7 @@ import json
 import requests
 
 
-from config import load_config
+from python_services.config import load_config
 from python_services.Kafka.logger import get_logger
 
 config = load_config()
@@ -28,7 +28,6 @@ consumer.subscribe([TOPIC_IN])
 logger.info("Kafka Consumer subscribed", extra={"topic": TOPIC_IN})
 
 
-
 # ✅ Initialize Kafka Producer
 producer = Producer({'bootstrap.servers': KAFKA_BROKER})
 logger.info("Kafka Producer initialized", extra={"kafka_broker": KAFKA_BROKER})
@@ -42,33 +41,36 @@ def call_translation_api(text, source_locale, target_locale, model_name):
         return {"success:": False, "error:" : "Unsupported Model"}
 
 
-    rest_api_url = f"{REST_API_URL}/{model_name}"    
-
+    rest_api_url = f"{REST_API_URL}/{model_name}/{source_locale}/{target_locale}" 
 
     payload = {
-        'target_locale': target_locale,
-        "source_locale": source_locale,
         "text":text
     }
+
+    logger.info(f"Sent request to {rest_api_url} with payload: {payload}")
     logger.info("Sending request to API", extra={"api_payload": payload, "api_url": rest_api_url})
+
 
     try:
         response = requests.post(rest_api_url, json=payload, headers={"Content-Type": "application/json"}, timeout=5)
+
         
         logger.info(" API Response Successful", extra={
             "status_code": response.status_code,
             "response_headers": dict(response.headers),
             "api_response": response.text
         })
+        # logger.info({"status_code": response.status_code},{"api_response": response.text})
 
         if response.status_code == 200:
             response_json = response.json()
             translated_text = response_json.get("translated_text")
+            # logger.info({"translated_text": translated_text})
         
             if translated_text:
-                return {"success:" :True, "translated_text:": translated_text}
+                return {"success" :True, "translated_text:": translated_text}
             else:
-                return {"success:" :False, "error:": "Missing 'translated_text' in API response"}
+                return {"success" :False, "error:": "Missing 'translated_text' in API response"}
 
         return {"success": False, "error": f"API returned {response.status_code} - {response.text}"}
 
@@ -79,6 +81,7 @@ def call_translation_api(text, source_locale, target_locale, model_name):
                         "payload": payload,  #  Adding the payload details
                         "api_url": rest_api_url  
                     }, exc_info=True)
+        logger.error(f"error_details: {str(e)}",exc_info=True)
         return {"success": False, "error": "Translation API request failed"}
 
 #  Function for Processing Incoming Messages
@@ -119,9 +122,18 @@ def process_messages():
 
             #  Call translation API
             response = call_translation_api(text_to_translate,source_locale, target_locale, model_name)
-
+            # logger.info(response)
+            # logger.info(response.get("success"))
+ 
+        
             if response.get("success"):
-                translated_text = response["translated_text"]
+
+                logger.info("it works",response)
+                logger.info(response['translated_text'])
+
+                translated_text = response['translated_text']
+
+                logger.info("the translated_text",translated_text)
                 response_message = json.dumps({
                     "text":text_to_translate,
                     "source_language": source_locale,
@@ -142,7 +154,8 @@ def process_messages():
                     "text": text_to_translate,
                     "source_language": source_locale,
                     "target_language": target_locale,
-                    "error": error_message,  #  Store error instead of translation
+                    "error": error_message,
+                    "translated_text": translated_text,  
                     "model_name": model_name
                 })
 
@@ -156,6 +169,7 @@ def process_messages():
             logger.error(" JSON Decoding Error", extra={"error_details": str(e), "raw_message": msg_raw}, exc_info=True)
         except Exception as e:
             logger.error(" Unexpected error processing message", extra={"error_details": str(e)}, exc_info=True)
+            logger.error({"error_details": str(e)})
 
 
 if __name__ == "__main__":

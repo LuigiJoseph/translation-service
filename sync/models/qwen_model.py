@@ -1,17 +1,15 @@
 import requests
+import os 
+import sys
 
-
-from python_services.sync.log.loggers import logger
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+from log.loggers import logger
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from python_services.config import load_config
 
 config = load_config()
 
 OLLAMA_URL = config["ollama"]["url"]
-MODEL_NAME= config["qwen"]["model_name"]
 
-
-logger.info(f"ollama running")
 def translate_qwen(text, source_lang, target_lang):
     """Handles Qwen translation using Ollama"""
 
@@ -19,7 +17,7 @@ def translate_qwen(text, source_lang, target_lang):
         return {"error": "Input text cannot be empty"}, 400
     
     payload = {
-        "model": MODEL_NAME, 
+        "model": 'qwen2.5:1.5b-instruct', 
         "prompt": f"""You are a highly skilled translator. 
         Translate the following text from {source_lang} to {target_lang}. 
         Only return the translated text without explanations, formatting, or additional details:\n\n{text}""",
@@ -34,4 +32,3 @@ def translate_qwen(text, source_lang, target_lang):
         return translated_text
     else:
         raise Exception(f"Ollama API error: {response.text}")
-    
