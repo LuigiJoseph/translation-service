@@ -68,7 +68,7 @@ def call_translation_api(text, source_locale, target_locale, model_name):
             # logger.info({"translated_text": translated_text})
         
             if translated_text:
-                return {"success" :True, "translated_text:": translated_text}
+                return {"success" :True, "translated_text": translated_text}
             else:
                 return {"success" :False, "error:": "Missing 'translated_text' in API response"}
 
@@ -128,12 +128,11 @@ def process_messages():
         
             if response.get("success"):
 
-                logger.info("it works",response)
                 logger.info(response['translated_text'])
 
                 translated_text = response['translated_text']
 
-                logger.info("the translated_text",translated_text)
+                logger.info("the translated_text: %s", translated_text)
                 response_message = json.dumps({
                     "text":text_to_translate,
                     "source_language": source_locale,
