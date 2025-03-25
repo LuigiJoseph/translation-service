@@ -81,7 +81,13 @@ services:
     depends_on:
       - mongo
      
-
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    ports:
+      - '3000:3000'
+    environment:
+      NODE_ENV: development
 
   mongo:
     image: mongo:latest

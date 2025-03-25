@@ -41,10 +41,13 @@ def call_translation_api(text, source_locale, target_locale, model_name):
         return {"success:": False, "error:" : "Unsupported Model"}
 
 
-    rest_api_url = f"{REST_API_URL}/{model_name}/{source_locale}/{target_locale}" 
+    rest_api_url = f"{REST_API_URL}" 
 
     payload = {
-        "text":text
+        "text": text,
+        "model": model_name ,
+        "source_locale": source_locale,
+        "target_locale": target_locale
     }
 
     logger.info(f"Sent request to {rest_api_url} with payload: {payload}")
@@ -65,7 +68,7 @@ def call_translation_api(text, source_locale, target_locale, model_name):
         if response.status_code == 200:
             response_json = response.json()
             translated_text = response_json.get("translated_text")
-            # logger.info({"translated_text": translated_text})
+            logger.info({"translated_text": translated_text})
         
             if translated_text:
                 return {"success" :True, "translated_text": translated_text}
@@ -122,8 +125,8 @@ def process_messages():
 
             #  Call translation API
             response = call_translation_api(text_to_translate,source_locale, target_locale, model_name)
-            # logger.info(response)
-            # logger.info(response.get("success"))
+            logger.info(response)
+            logger.info(response.get("success"))
  
         
             if response.get("success"):

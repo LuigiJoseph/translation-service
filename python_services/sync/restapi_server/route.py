@@ -7,11 +7,14 @@ from python_services.sync.restapi_server import api
 
 api = Namespace("translation-endpoints", description="Translation controller")
 translation_model = api.model('TranslationRequest', {
-    'text': fields.String(required=True, description='Text to translate')
+    'text': fields.String(required=True, description='Text to translate'),
+    'model': fields.String(required=True, description='Text to translate'),
+    'source_locale': fields.String(required=True, description='Text to translate'),
+    'target_locale': fields.String(required=True, description='Text to translate')
 })
 
 # METHOD = POST -> Translation
-@api.route("/api/v1/translate/<string:model_name>/<string:source_locale>/<string:target_locale>")
+@api.route("/api/v1/translate")
 class TranslateResource(Resource):
 
     @api.expect(translation_model)
@@ -21,10 +24,13 @@ class TranslateResource(Resource):
         400: 'Bad Request',
         500: 'Internal Server Error' 
     })
-    def post(self,model_name,source_locale,target_locale):
+    def post(self):
         """Translate text from one language to another"""
         data = request.json
         text = data.get("text")
+        model_name = data.get("model")
+        source_locale = data.get("source_locale")
+        target_locale = data.get("target_locale")
 
         if any(value in ["string", ""] for value in data.values()):
             return {"error": "Invalid input values"}, 400

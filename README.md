@@ -47,9 +47,8 @@ Maybe you can mention me or this repo in the acknowledgements too
 <!-- Screenshots -->
 ### Screenshots
 
-<div align="center"> 
-  <img src="https://placehold.co/600x400?text=Your+Screenshot+here" alt="screenshot" />
-</div>
+![UI Screenshot](https://i.imgur.com/cXYTdp5.png)
+
 
 
 <!-- TechStack -->
@@ -58,30 +57,45 @@ Maybe you can mention me or this repo in the acknowledgements too
 <details>
   <summary>Client</summary>
   <ul>
-    <li><a href="https://reactjs.org/">React.js</a></li>
+    <li>
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" width="20"/>
+      <a href="https://reactjs.org/">React.js</a>
+    </li>
   </ul>
 </details>
 
 <details>
   <summary>Server</summary>
   <ul>
-    <li><a href="https://flask.palletsprojects.com/en/stable/">Flask</a>![Flask]</li>
+    <li>
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/flask/flask-original.svg" width="20"/>
+      <a href="https://flask.palletsprojects.com/en/stable/">Flask</a>
+    </li>
   </ul>
 </details>
 
 <details>
-<summary>Database</summary>
+  <summary>Database</summary>
   <ul>
-    <li><a href="https://www.mongodb.com/">MongoDB</a></li>
+    <li>
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" width="20"/>
+      <a href="https://www.mongodb.com/">MongoDB</a>
+    </li>
   </ul>
 </details>
 
 <details>
-<summary>DevOps</summary>
+  <summary>DevOps</summary>
   <ul>
-    <li><a href="https://www.docker.com/">Docker</a></li>
+    <li>
+      <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="20"/>
+      <a href="https://www.docker.com/">Docker</a>
+    </li>
   </ul>
 </details>
+
+
+
 
 <!-- Features -->
 ### Features
@@ -140,29 +154,30 @@ Launch the services with Docker Compose
 ```bash
   docker-compose up
 ```
-Note
+
+<br>
 
 <details>
-<summary> Launch the services locally </summary> 
+<summary> <strong>🚀 Launch the services locally</strong> </summary> 
 
 ## For Flask
 
-### Install Dependencies
+* Install Dependencies
 
 ```bash
    pip install -r requirements.txt
 ```
 
-### Set Up Environment Variables
+*  Set Up Environment Variables
  make sure to update the MongoDB connection URL in the environment variables or configuration file. Replace the Docker service name with `localhost` or the appropriate local MongoDB address.
 
-Example 
+Example :
 
 ``` yaml
  mongodb://localhost:27017/
 ```
 
-Start the server by running:
+* Start the server by running:
 
 ```bash
   python -m python_services.sync.app
@@ -170,15 +185,35 @@ Start the server by running:
 ## For Kafka 
 
 ** Note: Kafka requires Docker to be running, and its containers must be started using `docker-compose up -d` **
-### Install Dependencies
+* Install Dependencies
 
 ```bash
    pip install -r requirements.txt
 ```
-Start the consumer by running:
+* Start the consumer by running:
 ```bash
   python -m python_services.Kafka.consumer
 ```
+* In a separate terminal, and run the following command
+
+```bash
+  python -m python_services.Kafka.producer
+```
+
+## For React 
+
+
+* Install Dependencies
+
+```bash
+   npm install
+```
+* Run the react server by executing the following command:
+```bash
+  npm run dev
+
+```
+
 </details>
 
 <!-- Usage -->
