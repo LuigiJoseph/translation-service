@@ -63,12 +63,14 @@ def call_translation_api(text, source_locale, target_locale, model_name):
             "response_headers": dict(response.headers),
             "api_response": response.text
         })
-        # logger.info({"status_code": response.status_code},{"api_response": response.text})
+        
 
         if response.status_code == 200:
             response_json = response.json()
             translated_text = response_json.get("translated_text")
-            logger.info({"translated_text": translated_text})
+            
+            logger.info({"translated_text": translated_text,
+                         "payload": payload})
         
             if translated_text:
                 return {"success" :True, "translated_text": translated_text}
@@ -84,7 +86,7 @@ def call_translation_api(text, source_locale, target_locale, model_name):
                         "payload": payload,  #  Adding the payload details
                         "api_url": rest_api_url  
                     }, exc_info=True)
-        logger.error(f"error_details: {str(e)}",exc_info=True)
+        
         return {"success": False, "error": "Translation API request failed"}
 
 #  Function for Processing Incoming Messages
@@ -125,17 +127,14 @@ def process_messages():
 
             #  Call translation API
             response = call_translation_api(text_to_translate,source_locale, target_locale, model_name)
-            logger.info(response)
-            logger.info(response.get("success"))
  
         
             if response.get("success"):
 
-                logger.info(response['translated_text'])
-
                 translated_text = response['translated_text']
 
                 logger.info("the translated_text: %s", translated_text)
+                
                 response_message = json.dumps({
                     "text":text_to_translate,
                     "source_language": source_locale,
