@@ -33,11 +33,10 @@ def translate_with_cache(text, source_locale, target_locale, model_name):
         intermediate_result = translation_function(text, source_locale, "en") # Translate to English (`en`) intermediate language
         logger.info(f"Intermediate result: {intermediate_result} (type: {type(intermediate_result)})")
 
-        intermediate_text = intermediate_result
-        if not intermediate_text:
+        if not intermediate_result:
             return {"error": "Intermediate translation to English failed."}, 400
 
-        final_result = translation_function(intermediate_text, "en", target_locale) # Translate from English (`en`) to the target language
+        final_result = translation_function(intermediate_result, "en", target_locale) # Translate from English (`en`) to the target language
         logger.info(f"Final result: {final_result} (type: {type(final_result)})")
 
         if not final_result:
