@@ -1,16 +1,16 @@
-from flask import request, jsonify
+from flask import request
 from flask_restx import Resource, fields , Namespace
 
 
 from python_services.sync.translation_methods import MODEL_HANDLERS , translate_with_cache
-from python_services.sync.restapi_server import api
 
 api = Namespace("translation-endpoints", description="Translation controller")
 translation_model = api.model('TranslationRequest', {
-    'text': fields.String(required=True, description='Text to translate'),
-    'model': fields.String(required=True, description='Text to translate'),
-    'source_locale': fields.String(required=True, description='Text to translate'),
-    'target_locale': fields.String(required=True, description='Text to translate')
+'text': fields.String(required=True, description='Text to be translated'),
+'model': fields.String(required=True, description='Translation model to use (helsinki, qwen)'),
+'source_locale': fields.String(required=True, description='Source Locale'),
+'target_locale': fields.String(required=True, description='Target Locale'),
+
 })
 
 # METHOD = POST -> Translation

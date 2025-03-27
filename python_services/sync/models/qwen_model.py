@@ -1,8 +1,8 @@
 import requests
+from flask import abort
 
 
 from python_services.sync.log.loggers import logger
-# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 from python_services.config import load_config
 
 config = load_config()
@@ -11,7 +11,7 @@ OLLAMA_URL = config["ollama"]["url"]
 MODEL_NAME= config["qwen"]["model_name"]
 
 
-logger.info(f"ollama running")
+logger.info("ollama running")
 def translate_qwen(text, source_lang, target_lang):
     """Handles Qwen translation using Ollama"""
 
@@ -33,5 +33,6 @@ def translate_qwen(text, source_lang, target_lang):
         logger.info(f"Translated Text: {translated_text}")
         return translated_text
     else:
-        raise Exception(f"Ollama API error: {response.text}")
+        logger.error(f"Ollama API Error: {response.status_code} - {response.text}")
+        abort(response.status_code, description=f"Ollama API error: {response.text}")
     
