@@ -1,66 +1,20 @@
-from flask import request, jsonify
+from flask import request
 from flask_restx import Resource, fields , Namespace
 
-from python_services.sync.log.loggers import logger
-from python_services.sync.models.transformers_models import translate_text 
-from python_services.sync.models.qwen_model import translate_qwen
-from python_services.sync.mongodb.mongo import translation_cache , generate_cache_key
-from python_services.sync.restapi_server import api
+
+from python_services.sync.translation_methods import MODEL_HANDLERS , translate_with_cache
 
 api = Namespace("translation-endpoints", description="Translation controller")
 translation_model = api.model('TranslationRequest', {
-    'target_locale': fields.String(required=False, description='Target languages'),
-    'source_locale': fields.String(required=True, description='Source languages'),
-    'text': fields.String(required=True, description='Text to translate')
+'text': fields.String(required=True, description='Text to be translated'),
+'model': fields.String(required=True, description='Translation model to use (helsinki, qwen)'),
+'source_locale': fields.String(required=True, description='Source Locale'),
+'target_locale': fields.String(required=True, description='Target Locale'),
+
 })
 
-MODEL_HANDLERS = {
-            "helsinki": translate_text,
-            "qwen": translate_qwen
-                                }
-logger.info(f"Available models: {MODEL_HANDLERS.keys()}")
-
-def translate_with_cache(text, source_locale, target_locale, model_name):
-    """Checks the cache before translating text."""
-
-    # Generate a unique hash key
-    cache_key = generate_cache_key(text, source_locale, target_locale, model_name)
-
-    # Check if translation exists in cache
-    cached_translation = translation_cache.find_one({"_id": cache_key})
-
-    if cached_translation:
-        translated_text = cached_translation["translated_text"]
-        logger.info(f"Returning cached translation: {translated_text}")
-        return translated_text
-
-    logger.info("Performing translation")
-
-    model_key = model_name.lower()
-    if model_key not in MODEL_HANDLERS:
-        return {"error": f"Model '{model_name}' is not supported."}, 400
-
-    translation_function = MODEL_HANDLERS[model_key]
-    translated_text = translation_function(text, source_locale, target_locale)
-
-    if translated_text and translated_text.strip():
-        translation_cache.insert_one({
-            "_id": cache_key,
-            "source_text": text,
-            "source_language": source_locale,
-            "target_language": target_locale,
-            "model_used": model_name,
-            "translated_text": translated_text
-        })
-        return translated_text
-    else:
-        logger.error("Translation failed or model returned empty text.")
-
-        return {"Translation failed or model returned empty text"}, 400
-
-
 # METHOD = POST -> Translation
-@api.route("/api/v1/translate/<string:model_name>")
+@api.route("/api/v1/translate")
 class TranslateResource(Resource):
 
     @api.expect(translation_model)
@@ -70,12 +24,13 @@ class TranslateResource(Resource):
         400: 'Bad Request',
         500: 'Internal Server Error' 
     })
-    def post(self,model_name):
+    def post(self):
         """Translate text from one language to another"""
         data = request.json
-        target_locale=data.get("target_locale")
-        source_locale = data.get("source_locale")
         text = data.get("text")
+        model_name = data.get("model")
+        source_locale = data.get("source_locale")
+        target_locale = data.get("target_locale")
 
         if any(value in ["string", ""] for value in data.values()):
             return {"error": "Invalid input values"}, 400
@@ -84,8 +39,8 @@ class TranslateResource(Resource):
         model_name = model_name.lower()
         if model_name not in MODEL_HANDLERS:
             return {"error": f"Model '{model_name}' is not supported."}, 400
+        
 
-        # Use caching function
         translated_text = translate_with_cache(text, source_locale, target_locale, model_name)
             
         return {

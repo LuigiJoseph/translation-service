@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import patch, Mock
 
 from python_services.Kafka.consumer import call_translation_api, process_messages, TOPIC_OUT
-from config import load_config
+from python_services.config import load_config
 
 config = load_config()
 REST_API_URL= config["kafka"]["rest_api_url"]
@@ -35,10 +35,10 @@ def test_call_translation_api_valid_response(mock_post):
     result = call_translation_api("Hello", "en", "tr", "qwen")
 
     # ✅ Assertions
-    assert result  == {"success:": True,"translated_text:": "Merhaba"}
+    assert result  == {"success": True,"translated_text": "Merhaba"}
     mock_post.assert_called_once_with(
-        f"{REST_API_URL}/qwen",
-        json={"target_locale": "tr", "source_locale": "en", "text": "Hello"},
+        f"{REST_API_URL}",
+        json={"target_locale": "tr", "source_locale": "en", "text": "Hello","model": "qwen"},
         headers={"Content-Type": "application/json"},
         timeout=5
     )

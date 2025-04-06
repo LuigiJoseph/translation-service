@@ -6,11 +6,12 @@ from python_services.sync.log.loggers import logger
 
 
 def load_config():
-        CONFIG_FILE = os.getenv("CONFIG_FILE", None)     
-        if CONFIG_FILE:
-                configfile_path = Path(CONFIG_FILE)
+        config_file = os.getenv("config_file", None)     
+        if config_file:
+                configfile_path = Path(config_file)
         else:
-                configfile_path = Path(__file__).parent / "configs/config.yaml"  
+                configfile_path = Path(__file__).parent.parent / "configs/config.yaml"
+ 
 
         try:
             with open(configfile_path, "r") as file:

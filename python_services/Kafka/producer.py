@@ -5,7 +5,7 @@ from pythonjsonlogger import jsonlogger
 
 
 
-from config import load_config
+from python_services.config import load_config
 
 config = load_config()
 KAFKA_BROKER= config["kafka"]["kafka_broker"]

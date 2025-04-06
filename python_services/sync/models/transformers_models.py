@@ -3,12 +3,12 @@ from transformers import MarianMTModel, MarianTokenizer
 from python_services.sync.log.loggers import logger
 MODELS={ 
     "tr-en": {
-                    "name": "ckartal/turkish-to-english-finetuned-model",  
+                    "name": "LuigiJoseph/Turkish-to-English-ft",  
                     "src_lang": "tr",
                     "tgt_lang": "en",
                 },
     "en-tr": {
-                    "name": "ckartal/english-to-turkish-finetuned-model",
+                    "name": "LuigiJoseph/English-to-Turkish-ft",
                     "src_lang": "en",
                     "tgt_lang": "tr",
                 },
@@ -16,6 +16,11 @@ MODELS={
                     "name": "Helsinki-NLP/opus-mt-tc-big-en-ar",
                     "src_lang": "en",
                     "tgt_lang": "ar",
+                },
+    "ar-en": {
+                    "name": "LuigiJoseph/Helsinki-ar-en-ft",
+                    "src_lang": "ar",
+                    "tgt_lang": "en",
                 }
     }
 
